@@ -1,5 +1,5 @@
 --[[
-    Made by samet.exe
+    Made by qlnt
 
     Assign different flags to each element to prevent from configs overriding eachother
     Example script is at the bottom
@@ -837,6 +837,21 @@ local Library do
         TableInsert(self.Connections, NewConnection)
         return NewConnection
     end
+
+    Library._anyTextBoxFocused = false
+    local function _trackTextBox(obj)
+        if not obj:IsA("TextBox") then return end
+        obj.Focused:Connect(function()   Library._anyTextBoxFocused = true  end)
+        obj.FocusLost:Connect(function() Library._anyTextBoxFocused = false end)
+    end
+    local function _scanForTextBoxes(parent)
+        pcall(function()
+            for _, v in ipairs(parent:GetDescendants()) do _trackTextBox(v) end
+            parent.DescendantAdded:Connect(_trackTextBox)
+        end)
+    end
+    _scanForTextBoxes(game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"))
+    pcall(function() _scanForTextBoxes(game:GetService("CoreGui")) end)
 
     Library.Disconnect = function(self, Name)
         for _, Connection in self.Connections do 
@@ -3763,12 +3778,14 @@ local Library do
             Keybind:SetOpen(not Keybind.IsOpen)
         end)
 
-        Library:Connect(UserInputService.InputBegan, function(Input)
-            if tostring(Input.KeyCode) == Keybind.Key or tostring(Input.UserInputType) == Keybind.Key then
-                if Keybind.Mode == "Toggle" then 
-                    Keybind:Press()
-                elseif Keybind.Mode == "Hold" then 
-                    Keybind:Press(true)
+        Library:Connect(UserInputService.InputBegan, function(Input, GameProcessed)
+            if not GameProcessed and not UserInputService:GetFocusedTextBox() and not Library._anyTextBoxFocused then
+                if tostring(Input.KeyCode) == Keybind.Key or tostring(Input.UserInputType) == Keybind.Key then
+                    if Keybind.Mode == "Toggle" then 
+                        Keybind:Press()
+                    elseif Keybind.Mode == "Hold" then 
+                        Keybind:Press(true)
+                    end
                 end
             end
 
@@ -3788,6 +3805,7 @@ local Library do
         end)
 
         Library:Connect(UserInputService.InputEnded, function(Input)
+            if UserInputService:GetFocusedTextBox() or Library._anyTextBoxFocused then return end
             if tostring(Input.KeyCode) == Keybind.Key or tostring(Input.UserInputType) == Keybind.Key then
                 if Keybind.Mode == "Hold" then 
                     Keybind:Press(false)
