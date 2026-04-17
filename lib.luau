@@ -4425,7 +4425,7 @@ local Library do
                 Parent = Playerlist.Page.ColumnsData[1].Instance,
                 Name = "\0",
                 BorderColor3 = FromRGB(0, 0, 0),
-                Size = UDim2New(1, -13, 0, 460),
+                Size = UDim2New(1, -13, 0, 419),
                 BorderSizePixel = 2,
                 BackgroundColor3 = FromRGB(19, 19, 19)
             })  Items["Playerlist"]:AddToTheme({BackgroundColor3 = "Section Background", BorderColor3 = "Outline"})
@@ -4610,9 +4610,10 @@ local Library do
             PlayerStatusModeDropdownItems["RealDropdown"].Instance.AnchorPoint = Vector2New(0, 0)
             PlayerStatusModeDropdownItems["RealDropdown"].Instance.Position = UDim2New(0, 0, 0, 0)
             PlayerStatusModeDropdownItems["RealDropdown"].Instance.Size = UDim2New(1, 0, 1, 0)
+            -- Row 2 right: dropdown
             PlayerStatusModeDropdownItems["Dropdown"].Instance.AnchorPoint = Vector2New(0, 1)
-            PlayerStatusModeDropdownItems["Dropdown"].Instance.Position = UDim2New(0.5, 42, 1, -12)
-            PlayerStatusModeDropdownItems["Dropdown"].Instance.Size = UDim2New(0.5, -50, 0, 17)
+            PlayerStatusModeDropdownItems["Dropdown"].Instance.Position = UDim2New(0, 190, 1, -8)
+            PlayerStatusModeDropdownItems["Dropdown"].Instance.Size = UDim2New(0, 98, 0, 17)
 
             local TeleportBtn = Instances:Create("TextButton", {
                 Parent = Items["Playerlist"].Instance,
@@ -4649,8 +4650,8 @@ local Library do
                 AutoButtonColor = false,
                 Name = "\0",
                 AnchorPoint = Vector2New(0, 1),
-                Size = UDim2New(0.5, -50, 0, 17),
-                Position = UDim2New(0.5, 42, 1, -32),
+                Size = UDim2New(0, 98, 0, 17),
+                Position = UDim2New(0, 190, 1, -28),
                 BorderSizePixel = 0,
                 TextSize = 12,
                 BackgroundColor3 = FromRGB(63, 63, 63)
@@ -4684,8 +4685,8 @@ local Library do
                 AutoButtonColor = false,
                 Name = "\0",
                 AnchorPoint = Vector2New(0, 1),
-                Size = UDim2New(0.5, -50, 0, 17),
-                Position = UDim2New(0, 88, 1, -12),
+                Size = UDim2New(0, 98, 0, 17),
+                Position = UDim2New(0, 88, 1, -8),
                 BorderSizePixel = 0,
                 TextSize = 12,
                 BackgroundColor3 = FromRGB(63, 63, 63)
