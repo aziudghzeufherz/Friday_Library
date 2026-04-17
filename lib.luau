@@ -199,14 +199,13 @@ local Library do
             Themes = "testpath/Themes"
         },
 
-        Images = { -- you're welcome to reupload the images and replace it with your own links
+        Images = {
             ["Saturation"] = {"Saturation.png", "https://github.com/sametexe001/images/blob/main/saturation.png?raw=true" },
             ["Value"] = { "Value.png", "https://github.com/sametexe001/images/blob/main/value.png?raw=true" },
             ["Hue"] = { "Hue.png", "https://github.com/sametexe001/images/blob/main/horizontalhue.png?raw=true" },
             ["Checkers"] = { "Checkers.png", "https://github.com/sametexe001/images/blob/main/checkers.png?raw=true" },
         },
 
-        -- Ignore below
         Pages = { },
         Sections = { },
 
@@ -4426,7 +4425,7 @@ local Library do
                 Parent = Playerlist.Page.ColumnsData[1].Instance,
                 Name = "\0",
                 BorderColor3 = FromRGB(0, 0, 0),
-                Size = UDim2New(1, -13, 0, 419),
+                Size = UDim2New(1, -13, 0, 460),
                 BorderSizePixel = 2,
                 BackgroundColor3 = FromRGB(19, 19, 19)
             })  Items["Playerlist"]:AddToTheme({BackgroundColor3 = "Section Background", BorderColor3 = "Outline"})
@@ -4610,6 +4609,87 @@ local Library do
             PlayerStatusModeDropdownItems["Dropdown"].Instance.Position = UDim2New(1, -8, 1, -65)
             PlayerStatusModeDropdownItems["Dropdown"].Instance.Size = UDim2New(0, 200, 0, 17)
             PlayerStatusModeDropdownItems["Dropdown"].Instance.AnchorPoint = Vector2New(1, 1)
+
+            local TeleportBtn = Instances:Create("TextButton", {
+                Parent = Items["Playerlist"].Instance,
+                FontFace = Library.Font,
+                TextColor3 = FromRGB(180, 180, 180),
+                BorderColor3 = FromRGB(0, 0, 0),
+                Text = "Teleport",
+                AutoButtonColor = false,
+                Name = "\0",
+                AnchorPoint = Vector2New(0, 1),
+                Size = UDim2New(0, 100, 0, 14),
+                Position = UDim2New(0, 88, 1, -112),
+                BorderSizePixel = 0,
+                TextSize = 11,
+                BackgroundColor3 = FromRGB(63, 63, 63)
+            })  TeleportBtn:AddToTheme({BackgroundColor3 = "Element"})
+            Instances:Create("UIStroke", { Parent = TeleportBtn.Instance, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter }):AddToTheme({Color = "Outline"})
+            TeleportBtn:Connect("MouseButton1Down", function()
+                if Playerlist.Player and Playerlist.Player.Character then
+                    local lp = game:GetService("Players").LocalPlayer
+                    if lp and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+                        lp.Character.HumanoidRootPart.CFrame = Playerlist.Player.Character:GetPivot()
+                    end
+                end
+            end)
+
+            local SpectateBtn = Instances:Create("TextButton", {
+                Parent = Items["Playerlist"].Instance,
+                FontFace = Library.Font,
+                TextColor3 = FromRGB(180, 180, 180),
+                BorderColor3 = FromRGB(0, 0, 0),
+                Text = "Spectate",
+                AutoButtonColor = false,
+                Name = "\0",
+                AnchorPoint = Vector2New(0, 1),
+                Size = UDim2New(0, 100, 0, 14),
+                Position = UDim2New(0, 192, 1, -112),
+                BorderSizePixel = 0,
+                TextSize = 11,
+                BackgroundColor3 = FromRGB(63, 63, 63)
+            })  SpectateBtn:AddToTheme({BackgroundColor3 = "Element"})
+            Instances:Create("UIStroke", { Parent = SpectateBtn.Instance, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter }):AddToTheme({Color = "Outline"})
+            local _spectating = false
+            SpectateBtn:Connect("MouseButton1Down", function()
+                if Playerlist.Player then
+                    _spectating = not _spectating
+                    if _spectating and Playerlist.Player.Character then
+                        game:GetService("Workspace").CurrentCamera.CameraSubject = Playerlist.Player.Character:FindFirstChildOfClass("Humanoid") or Playerlist.Player.Character
+                        SpectateBtn.Instance.Text = "Stop Spec."
+                    else
+                        _spectating = false
+                        local lp = game:GetService("Players").LocalPlayer
+                        if lp and lp.Character then
+                            game:GetService("Workspace").CurrentCamera.CameraSubject = lp.Character:FindFirstChildOfClass("Humanoid")
+                        end
+                        SpectateBtn.Instance.Text = "Spectate"
+                    end
+                end
+            end)
+
+            local CopyBtn = Instances:Create("TextButton", {
+                Parent = Items["Playerlist"].Instance,
+                FontFace = Library.Font,
+                TextColor3 = FromRGB(180, 180, 180),
+                BorderColor3 = FromRGB(0, 0, 0),
+                Text = "Copy Username",
+                AutoButtonColor = false,
+                Name = "\0",
+                AnchorPoint = Vector2New(0, 1),
+                Size = UDim2New(0, 204, 0, 14),
+                Position = UDim2New(0, 88, 1, -95),
+                BorderSizePixel = 0,
+                TextSize = 11,
+                BackgroundColor3 = FromRGB(63, 63, 63)
+            })  CopyBtn:AddToTheme({BackgroundColor3 = "Element"})
+            Instances:Create("UIStroke", { Parent = CopyBtn.Instance, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter }):AddToTheme({Color = "Outline"})
+            CopyBtn:Connect("MouseButton1Down", function()
+                if Playerlist.Player then
+                    pcall(setclipboard, Playerlist.Player.Name)
+                end
+            end)
         end
 
         function Playerlist:Remove(Name)
@@ -4678,9 +4758,9 @@ local Library do
             local PlayerTeam = Instances:Create("TextLabel", {
                 Parent = PlayerButton.Instance,
                 FontFace = Library.Font,
-                TextColor3 = BrickColor.new(tostring(Player.TeamColor)).Color,
+                TextColor3 = FromRGB(180, 180, 180),
                 BorderColor3 = FromRGB(0, 0, 0),
-                Text = tostring(Player.Team) or "None",
+                Text = tostring(Player.UserId),
                 Name = "\0",
                 Size = UDim2New(0.35, 0, 1, 0),
                 Position = UDim2New(0.35, 8, 0, -1),
@@ -4692,10 +4772,7 @@ local Library do
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })  
 
-            if PlayerTeam.Instance.Text == "None" then
-                PlayerTeam.Instance.TextColor3 = FromRGB(180, 180, 180)
-                PlayerTeam:AddToTheme({TextColor3 = "Text"})
-            end
+            PlayerTeam:AddToTheme({TextColor3 = "Text"})
 
             Instances:Create("Frame", {
                 Parent = PlayerTeam.Instance,
