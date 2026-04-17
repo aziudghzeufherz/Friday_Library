@@ -1,5 +1,5 @@
 --[[
-    Made by qlnt
+    Made by @qlnt
 
     Assign different flags to each element to prevent from configs overriding eachother
     Example script is at the bottom
@@ -4606,9 +4606,13 @@ local Library do
                 end
             })
 
-            PlayerStatusModeDropdownItems["Dropdown"].Instance.Position = UDim2New(1, -8, 1, -65)
-            PlayerStatusModeDropdownItems["Dropdown"].Instance.Size = UDim2New(0, 200, 0, 17)
-            PlayerStatusModeDropdownItems["Dropdown"].Instance.AnchorPoint = Vector2New(1, 1)
+            PlayerStatusModeDropdownItems["Text"].Instance.Visible = false
+            PlayerStatusModeDropdownItems["RealDropdown"].Instance.AnchorPoint = Vector2New(0, 0)
+            PlayerStatusModeDropdownItems["RealDropdown"].Instance.Position = UDim2New(0, 0, 0, 0)
+            PlayerStatusModeDropdownItems["RealDropdown"].Instance.Size = UDim2New(1, 0, 1, 0)
+            PlayerStatusModeDropdownItems["Dropdown"].Instance.AnchorPoint = Vector2New(0, 1)
+            PlayerStatusModeDropdownItems["Dropdown"].Instance.Position = UDim2New(0.5, 42, 1, -12)
+            PlayerStatusModeDropdownItems["Dropdown"].Instance.Size = UDim2New(0.5, -50, 0, 17)
 
             local TeleportBtn = Instances:Create("TextButton", {
                 Parent = Items["Playerlist"].Instance,
@@ -4619,13 +4623,14 @@ local Library do
                 AutoButtonColor = false,
                 Name = "\0",
                 AnchorPoint = Vector2New(0, 1),
-                Size = UDim2New(0, 100, 0, 14),
-                Position = UDim2New(0, 88, 1, -112),
+                Size = UDim2New(0.5, -50, 0, 17),
+                Position = UDim2New(0, 88, 1, -32),
                 BorderSizePixel = 0,
-                TextSize = 11,
+                TextSize = 12,
                 BackgroundColor3 = FromRGB(63, 63, 63)
             })  TeleportBtn:AddToTheme({BackgroundColor3 = "Element"})
             Instances:Create("UIStroke", { Parent = TeleportBtn.Instance, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter }):AddToTheme({Color = "Outline"})
+            Instances:Create("UIGradient", { Parent = TeleportBtn.Instance, Rotation = 90, Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(127, 127, 127))} })
             TeleportBtn:Connect("MouseButton1Down", function()
                 if Playerlist.Player and Playerlist.Player.Character then
                     local lp = game:GetService("Players").LocalPlayer
@@ -4644,13 +4649,14 @@ local Library do
                 AutoButtonColor = false,
                 Name = "\0",
                 AnchorPoint = Vector2New(0, 1),
-                Size = UDim2New(0, 100, 0, 14),
-                Position = UDim2New(0, 192, 1, -112),
+                Size = UDim2New(0.5, -50, 0, 17),
+                Position = UDim2New(0.5, 42, 1, -32),
                 BorderSizePixel = 0,
-                TextSize = 11,
+                TextSize = 12,
                 BackgroundColor3 = FromRGB(63, 63, 63)
             })  SpectateBtn:AddToTheme({BackgroundColor3 = "Element"})
             Instances:Create("UIStroke", { Parent = SpectateBtn.Instance, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter }):AddToTheme({Color = "Outline"})
+            Instances:Create("UIGradient", { Parent = SpectateBtn.Instance, Rotation = 90, Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(127, 127, 127))} })
             local _spectating = false
             SpectateBtn:Connect("MouseButton1Down", function()
                 if Playerlist.Player then
@@ -4678,13 +4684,14 @@ local Library do
                 AutoButtonColor = false,
                 Name = "\0",
                 AnchorPoint = Vector2New(0, 1),
-                Size = UDim2New(0, 204, 0, 14),
-                Position = UDim2New(0, 88, 1, -95),
+                Size = UDim2New(0.5, -50, 0, 17),
+                Position = UDim2New(0, 88, 1, -12),
                 BorderSizePixel = 0,
-                TextSize = 11,
+                TextSize = 12,
                 BackgroundColor3 = FromRGB(63, 63, 63)
             })  CopyBtn:AddToTheme({BackgroundColor3 = "Element"})
             Instances:Create("UIStroke", { Parent = CopyBtn.Instance, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter }):AddToTheme({Color = "Outline"})
+            Instances:Create("UIGradient", { Parent = CopyBtn.Instance, Rotation = 90, Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(127, 127, 127))} })
             CopyBtn:Connect("MouseButton1Down", function()
                 if Playerlist.Player then
                     pcall(setclipboard, Playerlist.Player.Name)
@@ -4871,7 +4878,6 @@ local Library do
 
                     PlayerData:Toggle("Active")
 
-                    -- Sync status dropdown to this player's current status
                     local currentStatus = PlayerData.PlayerStatus and PlayerData.PlayerStatus.Instance and PlayerData.PlayerStatus.Instance.Text or "Neutral"
                     if currentStatus == "LocalPlayer" then currentStatus = "Neutral" end
                     pcall(function() PlayerStatusModeDropdown:Set(currentStatus) end)
