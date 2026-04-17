@@ -4610,10 +4610,9 @@ local Library do
             PlayerStatusModeDropdownItems["RealDropdown"].Instance.AnchorPoint = Vector2New(0, 0)
             PlayerStatusModeDropdownItems["RealDropdown"].Instance.Position = UDim2New(0, 0, 0, 0)
             PlayerStatusModeDropdownItems["RealDropdown"].Instance.Size = UDim2New(1, 0, 1, 0)
-            -- Row 2 right: dropdown
-            PlayerStatusModeDropdownItems["Dropdown"].Instance.AnchorPoint = Vector2New(0, 1)
-            PlayerStatusModeDropdownItems["Dropdown"].Instance.Position = UDim2New(0, 190, 1, -8)
-            PlayerStatusModeDropdownItems["Dropdown"].Instance.Size = UDim2New(0, 98, 0, 17)
+            PlayerStatusModeDropdownItems["Dropdown"].Instance.AnchorPoint = Vector2New(1, 1)
+            PlayerStatusModeDropdownItems["Dropdown"].Instance.Position = UDim2New(1, -8, 1, -8)
+            PlayerStatusModeDropdownItems["Dropdown"].Instance.Size = UDim2New(0.5, -52, 0, 17)
 
             local TeleportBtn = Instances:Create("TextButton", {
                 Parent = Items["Playerlist"].Instance,
@@ -4624,8 +4623,8 @@ local Library do
                 AutoButtonColor = false,
                 Name = "\0",
                 AnchorPoint = Vector2New(0, 1),
-                Size = UDim2New(0.5, -50, 0, 17),
-                Position = UDim2New(0, 88, 1, -32),
+                Size = UDim2New(0.5, -52, 0, 17),
+                Position = UDim2New(0, 88, 1, -28),
                 BorderSizePixel = 0,
                 TextSize = 12,
                 BackgroundColor3 = FromRGB(63, 63, 63)
@@ -4649,9 +4648,9 @@ local Library do
                 Text = "Spectate",
                 AutoButtonColor = false,
                 Name = "\0",
-                AnchorPoint = Vector2New(0, 1),
-                Size = UDim2New(0, 98, 0, 17),
-                Position = UDim2New(0, 190, 1, -28),
+                AnchorPoint = Vector2New(1, 1),
+                Size = UDim2New(0.5, -52, 0, 17),
+                Position = UDim2New(1, -8, 1, -28),
                 BorderSizePixel = 0,
                 TextSize = 12,
                 BackgroundColor3 = FromRGB(63, 63, 63)
@@ -4685,7 +4684,7 @@ local Library do
                 AutoButtonColor = false,
                 Name = "\0",
                 AnchorPoint = Vector2New(0, 1),
-                Size = UDim2New(0, 98, 0, 17),
+                Size = UDim2New(0.5, -52, 0, 17),
                 Position = UDim2New(0, 88, 1, -8),
                 BorderSizePixel = 0,
                 TextSize = 12,
