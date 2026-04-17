@@ -4613,9 +4613,10 @@ local Library do
             PlayerStatusModeDropdownItems["Dropdown"].Instance.AnchorPoint = Vector2New(1, 1)
             PlayerStatusModeDropdownItems["Dropdown"].Instance.Position = UDim2New(1, -8, 1, -8)
             PlayerStatusModeDropdownItems["Dropdown"].Instance.Size = UDim2New(0.5, -52, 0, 17)
+            PlayerStatusModeDropdownItems["OptionHolder"].Instance.Parent = Items["Playerlist"].Instance
             PlayerStatusModeDropdownItems["OptionHolder"].Instance.AnchorPoint = Vector2New(1, 1)
-            PlayerStatusModeDropdownItems["OptionHolder"].Instance.Position = UDim2New(1, 0, 0, -3)
-            PlayerStatusModeDropdownItems["OptionHolder"].Instance.Size = UDim2New(1, 0, 0, 75)
+            PlayerStatusModeDropdownItems["OptionHolder"].Instance.Position = UDim2New(1, -8, 1, -28)
+            PlayerStatusModeDropdownItems["OptionHolder"].Instance.Size = UDim2New(0.5, -52, 0, 75)
 
             local TeleportBtn = Instances:Create("TextButton", {
                 Parent = Items["Playerlist"].Instance,
