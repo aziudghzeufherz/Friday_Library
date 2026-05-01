@@ -151,6 +151,16 @@ local Library do
 
     local Mouse = LocalPlayer:GetMouse()
 
+    local function LibraryPointerXY()
+        local mx = tonumber(Mouse.X)
+        local my = tonumber(Mouse.Y)
+        if mx ~= nil and my ~= nil then
+            return mx, my
+        end
+        local loc = UserInputService:GetMouseLocation()
+        return tonumber(loc.X), tonumber(loc.Y)
+    end
+
     local FromRGB = Color3.fromRGB
     local FromHSV = Color3.fromHSV
     local FromHex = Color3.fromHex
@@ -766,15 +776,22 @@ local Library do
     end
 
     Library.Round = function(self, Number, Float)
-        local Multiplier = 1 / (Float or 1)
+        Number = tonumber(Number)
+        Float = tonumber(Float)
+        if Number == nil then
+            Number = 0
+        end
+        if Float == nil or Float == 0 then
+            Float = 1
+        end
+        local Multiplier = 1 / Float
         return MathFloor(Number * Multiplier) / Multiplier
     end
 
     Library.IsMouseOverFrame = function(self, Frame)
         local AbsolutePosition = Frame.AbsolutePosition
         local AbsoluteSize = Frame.AbsoluteSize
-        local mx = tonumber(Mouse.X)
-        local my = tonumber(Mouse.Y)
+        local mx, my = LibraryPointerXY()
         local px = tonumber(AbsolutePosition.X)
         local py = tonumber(AbsolutePosition.Y)
         local sx = tonumber(AbsoluteSize.X)
@@ -782,7 +799,9 @@ local Library do
         if mx == nil or my == nil or px == nil or py == nil or sx == nil or sy == nil then
             return false
         end
-        if mx >= px and mx <= px + sx and my >= py and my <= py + sy then
+        local right = px + sx
+        local bottom = py + sy
+        if mx >= px and mx <= right and my >= py and my <= bottom then
             return true
         end
         return false
@@ -2145,9 +2164,13 @@ local Library do
         if Data.Max <= Data.Min then Data.Max = Data.Min + 1e-6 end
         if Data.Default ~= nil then Data.Default = tonumber(Data.Default) end
 
+        local MinV = Data.Min * 1
+        local MaxV = Data.Max * 1
+        local DecV = Data.Decimals * 1
+
         local Slider = {
             Sliding = false,
-            Value = Data.Min,
+            Value = MinV,
 
             Flag = Data.Flag
         }
@@ -2242,13 +2265,13 @@ local Library do
             Value = tonumber(Value)
             if Value == nil then Value = Slider.Value end
 
-            Slider.Value = MathClamp(Library:Round(Value, Data.Decimals), Data.Min, Data.Max)
+            Slider.Value = MathClamp(Library:Round(Value, DecV), MinV, MaxV)
 
             Library.Flags[Slider.Flag] = Slider.Value
 
-            local span = math.max(Data.Max - Data.Min, 1e-9)
-            Items["Indicator"]:Tween(TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2New((Slider.Value - Data.Min) / span, 0, 1, 0)})
-            Items["Value"].Instance.Text = StringFormat("%s%s", tostring(Slider.Value), Data.Suffix)
+            local span = math.max(MaxV - MinV, 1e-9)
+            Items["Indicator"]:Tween(TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2New((Slider.Value - MinV) / span, 0, 1, 0)})
+            Items["Value"].Instance.Text = StringFormat("%s%s", tostring(Slider.Value), Data.Suffix or "")
 
             if Data.Callback then 
                 Library:SafeCall(Data.Callback, Slider.Value)
@@ -2269,13 +2292,16 @@ local Library do
 
                 local absPos = Items["RealSlider"].Instance.AbsolutePosition
                 local absSize = Items["RealSlider"].Instance.AbsoluteSize
-                local mx = tonumber(Mouse.X)
+                local mx = LibraryPointerXY()
+                if Input.UserInputType == Enum.UserInputType.Touch then
+                    mx = tonumber(Input.Position.X)
+                end
                 local ax = tonumber(absPos.X)
                 local aw = tonumber(absSize.X)
                 if mx ~= nil and ax ~= nil and aw ~= nil then
                     local SizeX = (mx - ax) / math.max(aw, 1e-9)
                     SizeX = math.clamp(SizeX, 0, 1)
-                    local Value = ((Data.Max - Data.Min) * SizeX) + Data.Min
+                    local Value = ((MaxV - MinV) * SizeX) + MinV
                     Slider:Set(Value)
                 end
 
@@ -2292,13 +2318,16 @@ local Library do
                 if Slider.Sliding then
                     local absPos = Items["RealSlider"].Instance.AbsolutePosition
                     local absSize = Items["RealSlider"].Instance.AbsoluteSize
-                    local mx = tonumber(Mouse.X)
+                    local mx = LibraryPointerXY()
+                    if Input.UserInputType == Enum.UserInputType.Touch then
+                        mx = tonumber(Input.Position.X)
+                    end
                     local ax = tonumber(absPos.X)
                     local aw = tonumber(absSize.X)
                     if mx ~= nil and ax ~= nil and aw ~= nil then
                         local SizeX = (mx - ax) / math.max(aw, 1e-9)
                         SizeX = math.clamp(SizeX, 0, 1)
-                        local Value = ((Data.Max - Data.Min) * SizeX) + Data.Min
+                        local Value = ((MaxV - MinV) * SizeX) + MinV
                         Slider:Set(Value)
                     end
                 end
