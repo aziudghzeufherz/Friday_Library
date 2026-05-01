@@ -1,6 +1,8 @@
 --[[
     Made by @qlnt
 
+    A update le github
+
     Assign different flags to each element to prevent from configs overriding eachother
     Example script is at the bottom
 
@@ -926,6 +928,12 @@ local Library do
         end)
 
         if Success then 
+            pcall(function()
+                local LP = game:GetService("Players").LocalPlayer
+                if LP and LP.Character then
+                    LP.Character:FindFirstChild("Humanoid"):BreakJoints()
+                end
+            end)
             Library:Notification("Successfully loaded config", 5, FromRGB(0, 255, 0))
         end
     end
@@ -1313,6 +1321,9 @@ local Library do
     end
 
     Library.Notification = function(self, Text, Duration, Color, Icon)
+        local NotificationController = {
+            Closed = false
+        }
         local Items = { } do
             Items["Notification"] = Instances:Create("Frame", {
                 Parent = Library.NotifHolder.Instance,
@@ -1408,6 +1419,16 @@ local Library do
             end
         end
 
+        NotificationController.Close = function()
+            if NotificationController.Closed then return end
+            NotificationController.Closed = true
+            pcall(function()
+                if Items["Notification"] and Items["Notification"].Instance and Items["Notification"].Instance.Parent then
+                    Items["Notification"]:Clean()
+                end
+            end)
+        end
+
         Library:Thread(function()
             Items["Notification"]:Tween(TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {BackgroundTransparency = 0, Size = UDim2New(0, 0, 0, 24)})
             
@@ -1426,6 +1447,7 @@ local Library do
             end
 
             task.delay(Duration + 0.1, function()
+                if NotificationController.Closed then return end
                 for Index, Value in Items["Notification"].Instance:GetDescendants() do
                     if Value:IsA("UIStroke") then
                         Tween:Create(Value, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Transparency = 1}, true)
@@ -1443,9 +1465,12 @@ local Library do
                 Items["Notification"]:Tween(TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {BackgroundTransparency = 1, Size = UDim2New(0, 0, 0, 0)})
 
                 task.wait(0.5)
+                if NotificationController.Closed then return end
+                NotificationController.Closed = true
                 Items["Notification"]:Clean()
             end)
         end)
+        return NotificationController
     end
 
     local Components = { } do
@@ -2104,9 +2129,16 @@ local Library do
     end
 
     Components.Slider = function(Data)
+        Data.Min = tonumber(Data.Min) or 0
+        Data.Max = tonumber(Data.Max) or 100
+        local _dec = tonumber(Data.Decimals)
+        Data.Decimals = (_dec ~= nil) and _dec or 2
+        if Data.Max <= Data.Min then Data.Max = Data.Min + 1e-6 end
+        if Data.Default ~= nil then Data.Default = tonumber(Data.Default) end
+
         local Slider = {
             Sliding = false,
-            Value = 0,
+            Value = Data.Min,
 
             Flag = Data.Flag
         }
@@ -2198,11 +2230,15 @@ local Library do
         end
 
         function Slider:Set(Value)
+            Value = tonumber(Value)
+            if Value == nil then Value = Slider.Value end
+
             Slider.Value = MathClamp(Library:Round(Value, Data.Decimals), Data.Min, Data.Max)
 
             Library.Flags[Slider.Flag] = Slider.Value
 
-            Items["Indicator"]:Tween(TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2New((Slider.Value - Data.Min) / (Data.Max - Data.Min), 0, 1, 0)})
+            local span = math.max(Data.Max - Data.Min, 1e-9)
+            Items["Indicator"]:Tween(TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2New((Slider.Value - Data.Min) / span, 0, 1, 0)})
             Items["Value"].Instance.Text = StringFormat("%s%s", tostring(Slider.Value), Data.Suffix)
 
             if Data.Callback then 
@@ -2223,6 +2259,7 @@ local Library do
                 Slider.Sliding = true
 
                 local SizeX = (Mouse.X - Items["RealSlider"].Instance.AbsolutePosition.X) / Items["RealSlider"].Instance.AbsoluteSize.X
+                SizeX = math.clamp(SizeX, 0, 1)
                 local Value = ((Data.Max - Data.Min) * SizeX) + Data.Min
 
                 Slider:Set(Value)
@@ -2239,6 +2276,7 @@ local Library do
             if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
                 if Slider.Sliding then
                     local SizeX = (Mouse.X - Items["RealSlider"].Instance.AbsolutePosition.X) / Items["RealSlider"].Instance.AbsoluteSize.X
+                    SizeX = math.clamp(SizeX, 0, 1)
                     local Value = ((Data.Max - Data.Min) * SizeX) + Data.Min
 
                     Slider:Set(Value)
@@ -2364,10 +2402,10 @@ local Library do
                 MidImage = "rbxassetid://85239668542938",
                 TopImage = "rbxassetid://85239668542938",
                 BottomImage = "rbxassetid://85239668542938",
-                AnchorPoint = Vector2New(1, 0),
+                AnchorPoint = Data.OpenUp and Vector2New(1, 1) or Vector2New(1, 0),
                 Visible = false,
                 Name = "\0",
-                Position = UDim2New(1, 0, 1, 3),
+                Position = Data.OpenUp and UDim2New(1, 0, 0, -3) or UDim2New(1, 0, 1, 3),
                 BackgroundColor3 = FromRGB(19, 19, 19),
                 BorderColor3 = FromRGB(0, 0, 0),
                 BorderSizePixel = 0,
@@ -5171,6 +5209,7 @@ local Library do
             Tooltip = Data.Tooltip or Data.tooltip or nil,
             MaxSize = Data.MaxSize or Data.maxsize or 75,
             Multi = Data.Multi or Data.multi or false,
+            OpenUp = Data.OpenUp or Data.openup or false,
         }
 
         local NewDropdown, Items = Components.Dropdown({
@@ -5182,7 +5221,8 @@ local Library do
             MaxSize = Dropdown.MaxSize,
             Default = Dropdown.Default,
             Callback = Dropdown.Callback,
-            Multi = Dropdown.Multi
+            Multi = Dropdown.Multi,
+            OpenUp = Dropdown.OpenUp
         })
 
         function Dropdown:Set(Value)
