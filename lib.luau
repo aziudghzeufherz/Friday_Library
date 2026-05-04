@@ -462,6 +462,14 @@ local Library do
             setmetatable(NewItem, Instances)
 
             for Property, Value in NewItem.Properties do
+                if Property == "Text" then
+                    if type(Value) == "table" then
+                        local inner = Value.Name or Value.Text or Value.Label or Value.Value
+                        Value = type(inner) == "string" and inner or (inner ~= nil and tostring(inner) or "")
+                    elseif type(Value) ~= "string" then
+                        Value = (Value ~= nil) and tostring(Value) or ""
+                    end
+                end
                 NewItem.Instance[Property] = Value
             end
 
@@ -2045,20 +2053,22 @@ local Library do
         function Button:SubButton(Data)
             local SubButton = { }
 
-            Items["ButtonHolder"] = Instances:Create("Frame", {
-                Parent = Data.Parent.Instance,
-                BackgroundTransparency = 1,
-                Name = "\0",
-                BorderColor3 = FromRGB(0, 0, 0),
-                Size = UDim2New(1, 0, 0, 17),
-                BorderSizePixel = 0,
-                BackgroundColor3 = FromRGB(255, 255, 255)
-            })
+            if not Items["ButtonHolder"] then
+                Items["ButtonHolder"] = Instances:Create("Frame", {
+                    Parent = Data.Parent.Instance,
+                    BackgroundTransparency = 1,
+                    Name = "\0",
+                    BorderColor3 = FromRGB(0, 0, 0),
+                    Size = UDim2New(1, 0, 0, 17),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = FromRGB(255, 255, 255)
+                })
+                Items["Button"].Instance.Parent = Items["ButtonHolder"].Instance
+                Items["_subExtra"] = {}
+            end
 
-            Items["Button"].Instance.Parent = Items["ButtonHolder"].Instance
-            Items["Button"].Instance.Size =  UDim2New(0.475, 3, 0, 17)
-
-            local SubItems = { } do 
+            local SubItems = { }
+            do
                 SubItems["Button"] = Instances:Create("TextButton", {
                     Parent = Items["ButtonHolder"].Instance,
                     FontFace = Library.Font,
@@ -2066,10 +2076,10 @@ local Library do
                     BorderColor3 = FromRGB(0, 0, 0),
                     Text = "",
                     AutoButtonColor = false,
-                    AnchorPoint = Vector2New(1, 0),
+                    AnchorPoint = Vector2New(0, 0),
                     Name = "\0",
-                    Position = UDim2New(1, 0, 0, 0),
-                    Size = UDim2New(0.475, 3, 0, 17),
+                    Position = UDim2New(0, 0, 0, 0),
+                    Size = UDim2New(1, 0, 0, 17),
                     BorderSizePixel = 0,
                     TextSize = 14,
                     BackgroundColor3 = FromRGB(63, 63, 63)
@@ -2114,6 +2124,25 @@ local Library do
                 end
             end
 
+            table.insert(Items["_subExtra"], SubItems)
+
+            local function reflowMultiButtons()
+                local elems = { Items["Button"].Instance }
+                for _, si in ipairs(Items["_subExtra"]) do
+                    table.insert(elems, si["Button"].Instance)
+                end
+                local n = #elems
+                local gapPx = 4
+                for i, inst in ipairs(elems) do
+                    inst.AnchorPoint = Vector2New(0, 0)
+                    local slot = 1 / n
+                    inst.Position = UDim2.new((i - 1) * slot, (i - 1) * gapPx, 0, 0)
+                    inst.Size = UDim2.new(slot, -(math.max(0, n - 1) * gapPx) / n, 0, 17)
+                end
+            end
+
+            reflowMultiButtons()
+
             function SubButton:Press()
                 Library:SafeCall(Data.Callback)
 
@@ -2147,6 +2176,8 @@ local Library do
             SubItems["Button"]:Connect("MouseButton1Down", function()
                 SubButton:Press()
             end)
+
+            return SubButton
         end
 
         Items["Button"]:Connect("MouseButton1Down", function()
@@ -3838,6 +3869,17 @@ local Library do
             Update()
         end
 
+        function Keybind:SyncListState(Bool)
+            if Keybind.Mode == "Always" then return end
+            Keybind.Toggled = Bool and true or false
+            Library.Flags[Keybind.Flag] = {
+                Mode = Keybind.Mode,
+                Key = Keybind.Key,
+                Toggled = Keybind.Toggled
+            }
+            Update()
+        end
+
         Items["KeyButton"]:Connect("MouseButton1Click", function()
             if Keybind.Picking then 
                 return
@@ -4153,28 +4195,47 @@ local Library do
         end
 
         function Listbox:Remove(Option)
-            if Listbox.Options[Option] then 
-                Listbox.Options[Option].OptionButton:Clean()
+            local key = type(Option) == "table" and (Option.Name or Option.Text or "") or Option
+            if Listbox.Options[key] then 
+                Listbox.Options[key].OptionButton:Clean()
+                Listbox.Options[key] = nil
             end
         end
 
         function Listbox:Refresh(List)
-            for Index, Value in Listbox.Options do 
-                Listbox:Remove(Value.Name)
+            local keys = {}
+            for k in pairs(Listbox.Options) do
+                keys[#keys + 1] = k
+            end
+            for i = 1, #keys do
+                Listbox:Remove(keys[i])
             end
 
-            for Index, Value in List do 
+            for Index, Value in List do
                 Listbox:Add(Value)
             end
         end
 
         function Listbox:Add(Option)
+            local nameStr = Option
+            local customIdleColor = nil
+            if type(Option) == "table" then
+                nameStr = Option.Name or Option.Text or Option.Label or Option.Value
+                customIdleColor = Option.TextColor3 or Option.Color
+            end
+            if type(nameStr) == "table" then
+                local inner = nameStr.Name or nameStr.Text or nameStr.Label or nameStr.Value
+                nameStr = type(inner) == "string" and inner or (inner ~= nil and tostring(inner) or "")
+            elseif type(nameStr) ~= "string" then
+                nameStr = (nameStr ~= nil) and tostring(nameStr) or ""
+            end
+
             local OptionButton = Instances:Create("TextButton", {
                 Parent = Items["Holder"].Instance,
                 FontFace = Library.Font,
                 TextColor3 = FromRGB(180, 180, 180),
                 BorderColor3 = FromRGB(0, 0, 0),
-                Text = Option,
+                Text = nameStr,
                 AutoButtonColor = false,
                 Name = "\0",
                 Size = UDim2New(1, 0, 0, 15),
@@ -4193,9 +4254,10 @@ local Library do
             })
 
             local OptionData = {
-                Name = Option,
+                Name = nameStr,
                 OptionButton = OptionButton,
-                Selected = false
+                Selected = false,
+                CustomIdleColor = customIdleColor
             }
 
             function OptionData:Toggle(Status)
@@ -4203,8 +4265,12 @@ local Library do
                     OptionData.OptionButton:ChangeItemTheme({TextColor3 = "Accent"})
                     OptionData.OptionButton:Tween(nil, {TextColor3 = Library.Theme.Accent})
                 else
-                    OptionData.OptionButton:ChangeItemTheme({TextColor3 = "Text"})
-                    OptionData.OptionButton:Tween(nil, {TextColor3 = Library.Theme.Text})
+                    if OptionData.CustomIdleColor then
+                        OptionData.OptionButton:Tween(nil, {TextColor3 = OptionData.CustomIdleColor})
+                    else
+                        OptionData.OptionButton:ChangeItemTheme({TextColor3 = "Text"})
+                        OptionData.OptionButton:Tween(nil, {TextColor3 = Library.Theme.Text})
+                    end
                 end
             end
 
@@ -4255,7 +4321,12 @@ local Library do
                 OptionData:Set()
             end)
 
-            Listbox.Options[Option] = OptionData
+            Listbox.Options[nameStr] = OptionData
+
+            if customIdleColor then
+                OptionButton:Tween(nil, {TextColor3 = customIdleColor})
+            end
+
             return OptionData
         end
 
@@ -4665,30 +4736,40 @@ local Library do
                             return
                         end
 
-                        if Value == "Neutral" then
-                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
-                                TextColor3 = FromRGB(180, 180, 180)
-                            })
+                        local row = Playerlist.Players and Playerlist.Players[Playerlist.Player.Name]
+                        local ps = row and row.PlayerStatus
+                        if ps and ps.Instance then
+                            if Value == "Neutral" then
+                                ps:Tween(nil, {
+                                    TextColor3 = FromRGB(180, 180, 180)
+                                })
 
-                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Neutral"
-                        elseif Value == "Priority" then
-                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
-                                TextColor3 = FromRGB(255, 50, 50)
-                            })
+                                ps.Instance.Text = "Neutral"
+                            elseif Value == "Priority" then
+                                ps:Tween(nil, {
+                                    TextColor3 = FromRGB(255, 50, 50)
+                                })
 
-                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Priority"
-                        elseif Value == "Friendly" then
-                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
-                                TextColor3 = FromRGB(83, 255, 83)
-                            })
+                                ps.Instance.Text = "Priority"
+                            elseif Value == "Friendly" then
+                                ps:Tween(nil, {
+                                    TextColor3 = FromRGB(83, 255, 83)
+                                })
 
-                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Friendly"
-                        else
-                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus:Tween(nil, {
-                                TextColor3 = FromRGB(180, 180, 180)
-                            })
+                                ps.Instance.Text = "Friendly"
+                            else
+                                ps:Tween(nil, {
+                                    TextColor3 = FromRGB(180, 180, 180)
+                                })
 
-                            Playerlist.Players[Playerlist.Player.Name].PlayerStatus.Instance.Text = "Neutral"
+                                ps.Instance.Text = "Neutral"
+                            end
+                        end
+                        if Data.StatusCallback then
+                            local st = "Neutral"
+                            if Value == "Priority" then st = "Priority"
+                            elseif Value == "Friendly" then st = "Friendly" end
+                            Library:SafeCall(Data.StatusCallback, Playerlist.Player, st)
                         end
                     end
                 end
@@ -4763,6 +4844,9 @@ local Library do
                             game:GetService("Workspace").CurrentCamera.CameraSubject = lp.Character:FindFirstChildOfClass("Humanoid")
                         end
                         SpectateBtn.Instance.Text = "Spectate"
+                    end
+                    if Data.SpectateCallback then
+                        Library:SafeCall(Data.SpectateCallback, Playerlist.Player, _spectating)
                     end
                 end
             end)
@@ -5141,6 +5225,10 @@ local Library do
                 NewKeybind:SetVisibility(Bool)
             end
 
+            function Keybind:SyncListState(Bool)
+                NewKeybind:SyncListState(Bool)
+            end
+
             return Keybind
         end
 
@@ -5170,7 +5258,7 @@ local Library do
         })
 
         function Button:SetVisibility(Bool)
-            Button:SetVisibility(Bool)
+            NewButton:SetVisibility(Bool)
         end
 
         function Button:SubButton(Data)
@@ -5188,10 +5276,14 @@ local Library do
                 Risky = Data.Risky or Data.risky or false
             }
 
-            local NewSubbutton, SubItems = NewButton:SubButton(SubButton)
+            local NewSubbutton = NewButton:SubButton(SubButton)
 
             function SubButton:SetVisibility(Bool)
                 NewSubbutton:SetVisibility(Bool)
+            end
+
+            function SubButton:SubButton(Data2)
+                return Button:SubButton(Data2)
             end
 
             return SubButton
