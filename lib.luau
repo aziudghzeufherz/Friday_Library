@@ -2983,7 +2983,7 @@ local config_holder
             -- Tab
                 local tabb = library:create("TextButton", {
                     Parent = tab_holder,
-                    Name = "",
+                    Name = "multi_tab_btn",
                     AutoButtonColor = false,
                     FontFace = library.font,
                     TextColor3 = themes.preset.text,
@@ -2993,41 +2993,38 @@ local config_holder
                     Size = dim2(0, 0, 1, 0),
                     ZIndex = 1,
                     TextSize = 12,
-                    BackgroundColor3 = themes.preset.outline
-                }) library:apply_theme(tabb, "outline", "BackgroundColor3") 
-                
-                local background = library:create("Frame", {
-                    Parent = tabb,
-                    Name = "",
-                    Size = dim2(1, 0, 1, -2),
-                    Position = dim2(0, 1, 0, 1),
-                    BorderColor3 = rgb(0, 0, 0),
-                    ZIndex = 1,
-                    BorderSizePixel = 0,
+                    BackgroundTransparency = 1,
                     BackgroundColor3 = rgb(255, 255, 255)
                 })
                 
-                local UIGradient = library:create("UIGradient", {
-                    Parent = background,
-                    Name = "",
-                    Rotation = 90,
-                    Color = rgbseq{rgbkey(0, rgb(41, 41, 55)), rgbkey(1, rgb(35, 35, 47))}
-                }) library:apply_theme(UIGradient, "contrast", "Color")
+                local background = library:create("Frame", {
+                    Parent = tabb,
+                    Name = "multi_tab_bg",
+                    Size = dim2(1, 0, 1, 0),
+                    Position = dim2(0, 0, 0, 0),
+                    BorderColor3 = rgb(0, 0, 0),
+                    ZIndex = 1,
+                    BorderSizePixel = 0,
+                    BackgroundTransparency = 1,
+                    BackgroundColor3 = rgb(255, 255, 255)
+                })
                 
                 local text = library:create("TextLabel", {
                     Parent = background,
-                    Name = "",
+                    Name = "multi_tab_title",
                     FontFace = library.font,
                     TextColor3 = themes.preset.text,
                     BorderColor3 = rgb(0, 0, 0),
                     Text = tab,
                     BackgroundTransparency = 1,
-                    Size = dim2(1, 0, 1, 0),
+                    Position = dim2(0, 6, 0, 2),
+                    Size = dim2(1, -12, 1, 0),
                     BorderSizePixel = 0,
+                    TextXAlignment = Enum.TextXAlignment.Left,
                     AutomaticSize = Enum.AutomaticSize.X,
                     TextSize = 12,
                     BackgroundColor3 = rgb(255, 255, 255)
-                }) library:apply_theme(text, "accent", "TextColor3")
+                })
                 
                 local UIStroke = library:create("UIStroke", {
                     Parent = text,
@@ -3255,8 +3252,6 @@ local config_holder
             
             function multi:open_tab(bool) 
                 ScrollingFrame.Visible = bool 
-                UIGradient.Rotation = bool and -90 or 90
-                tabb.Size = dim2(0, 0, 1, bool and 1 or 0)
                 text.TextColor3 = bool and themes.preset.accent or themes.preset.text
             end
 
