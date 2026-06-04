@@ -1799,7 +1799,7 @@ local config_holder
             customCursorOutline.Visible = false
 
             run.RenderStepped:Connect(function()
-                local useCustom = window.opened and flags["custom_cursor"] == true
+                local useCustom = flags["custom_cursor"] == true and window.opened == true
                 if useCustom then
                     uis.MouseIconEnabled = false
                     local mPos = uis:GetMouseLocation()
@@ -1808,6 +1808,8 @@ local config_holder
                         accentCol = rgb(220, 170, 190)
                     end
                     customCursor.Color = accentCol
+                    customCursor.ZIndex = 999
+                    customCursorOutline.ZIndex = 998
                     customCursor.PointA = vec2(mPos.X, mPos.Y)
                     customCursor.PointB = vec2(mPos.X + 16, mPos.Y + 6)
                     customCursor.PointC = vec2(mPos.X + 6, mPos.Y + 16)
