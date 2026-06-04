@@ -6249,7 +6249,7 @@ local config_holder
                 Parent = TextButton,
                 Name = "",
                 FontFace = library.font,
-                TextColor3 = tostring(player) ~= lp.Name and themes.preset.text or rgb(0, 0, 255),
+                TextColor3 = tostring(player) ~= lp.Name and themes.preset.text or themes.preset.accent,
                 BorderColor3 = rgb(0, 0, 0),
                 Text = tostring(player) ~= lp.Name and "Neutral" or "LocalPlayer",
                 BackgroundTransparency = 1,
@@ -6259,6 +6259,9 @@ local config_holder
                 TextSize = 12,
                 BackgroundColor3 = rgb(255, 255, 255)
             })
+            if tostring(player) == lp.Name then
+                library:apply_theme(priority_text, "accent", "TextColor3")
+            end
 
             local Frame = library:create("Frame", {
                 Parent = priority_text,
@@ -6386,7 +6389,7 @@ local config_holder
             insert(library.playerlist_data, player_object)
         end 
 
-        self:textbox({name = "Search", callback = function(txt)
+        self:textbox({name = "Search", placeholder = "search player", callback = function(txt)
             cfg.search(txt)
         end})
         cfg.labels.name = self:label({name = "Name: ??"})
