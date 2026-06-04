@@ -1786,44 +1786,6 @@ local config_holder
                 end 
             end})
             section:slider({name = "Max Players", flag = "max_players", min = 0, max = 40, default = 15, interval = 1})
-
-            local customCursor = Drawing.new("Triangle")
-            customCursor.Thickness = 1
-            customCursor.Filled = true
-            customCursor.Visible = false
-
-            local customCursorOutline = Drawing.new("Triangle")
-            customCursorOutline.Thickness = 1
-            customCursorOutline.Filled = false
-            customCursorOutline.Color = rgb(0, 0, 0)
-            customCursorOutline.Visible = false
-
-            run.RenderStepped:Connect(function()
-                local useCustom = flags["custom_cursor"] == true and window.opened == true
-                if useCustom then
-                    uis.MouseIconEnabled = false
-                    local mPos = uis:GetMouseLocation()
-                    local accentCol = themes.preset.accent
-                    if typeof(accentCol) ~= "Color3" then
-                        accentCol = rgb(220, 170, 190)
-                    end
-                    customCursor.Color = accentCol
-                    customCursor.ZIndex = 999
-                    customCursorOutline.ZIndex = 998
-                    customCursor.PointA = vec2(mPos.X, mPos.Y)
-                    customCursor.PointB = vec2(mPos.X + 16, mPos.Y + 6)
-                    customCursor.PointC = vec2(mPos.X + 6, mPos.Y + 16)
-                    customCursorOutline.PointA = customCursor.PointA
-                    customCursorOutline.PointB = customCursor.PointB
-                    customCursorOutline.PointC = customCursor.PointC
-                    customCursor.Visible = true
-                    customCursorOutline.Visible = true
-                else
-                    uis.MouseIconEnabled = true
-                    customCursor.Visible = false
-                    customCursorOutline.Visible = false
-                end
-            end)
         --
 
         -- cfg holder
