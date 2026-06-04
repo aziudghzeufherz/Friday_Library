@@ -2920,7 +2920,7 @@ local config_holder
         
         local __background = library:create("Frame", {
             Parent = inline,
-            Name = "",
+            Name = "multi_section_panel",
             ClipsDescendants = true,
             Position = dim2(0, 1, 0, 1),
             BorderColor3 = rgb(0, 0, 0),
@@ -2956,7 +2956,7 @@ local config_holder
         
         local tab_holder = library:create("Frame", {
             Parent = __background,
-            Name = "",
+            Name = "multi_tab_row",
             ClipsDescendants = true,
             BackgroundTransparency = 1,
             Position = dim2(0, -1, 0, 0),
